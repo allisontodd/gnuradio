@@ -11,6 +11,8 @@
 Provide a base flow graph for USRP signal generators.
 """
 
+import time
+
 from __future__ import print_function
 from __future__ import division
 from __future__ import unicode_literals
@@ -272,6 +274,8 @@ def setup_argparser():
 
 def main():
     " Go, go, go! "
+    currentTime = time.time()
+    delta = input('[UHD-SIGGEN] Length (in sec) of transmission?')
     if gr.enable_realtime_scheduling() != gr.RT_OK:
         print("Note: failed to enable realtime scheduling, continuing")
     # Grab command line args and create top block
@@ -283,9 +287,12 @@ def main():
         print(ex)
         exit(1)
     tb.start()
-    input('[UHD-SIGGEN] Press Enter to quit:\n')
-    tb.stop()
-    tb.wait()
+    while True:
+        if time.time() - currentTime >= delta:
+            tb.stop()
+            tb.wait()
+#    input('[UHD-SIGGEN] Press Enter to quit:\n')
+    
 
 if __name__ == "__main__":
     main()
